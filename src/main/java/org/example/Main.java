@@ -4,9 +4,7 @@ import java.util.List;
 
 public class Main {
 
-    private int errorCount = 0;
-
-    public static void main(String[] args) throws InterruptedException, UnhandledHttpMethodException {
+    public static void main(String[] args) throws InterruptedException {
         String jsonData = "{\"name\":\"Product\",\"price\":10.0}";
         String endpoint = "http://localhost:8080/products";
         EndpointLoadTester loadTester = new EndpointLoadTester(endpoint, HttpMethod.POST, jsonData);
