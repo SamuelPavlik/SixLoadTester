@@ -3,24 +3,32 @@ package org.example;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
+import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MyRunnable implements Runnable {
 
+    private final AtomicInteger errorCount;
 
-    static int count = 0;
+    private final AtomicInteger overallCount;
 
-    static int errorCount = 0;
-    boolean init = false;
+    private boolean init;
+
+    public MyRunnable(AtomicInteger errorCount, AtomicInteger overallCount) {
+        this.errorCount = errorCount;
+        this.overallCount = overallCount;
+        this.init = false;
+    }
 
     @Override
     public void run() {
         if (!init) {
             init = true;
-            System.out.println(++count);
+            System.out.println(overallCount.incrementAndGet());
         }
 
         var httpClient = HttpClientBuilder.create().build();
-        var startTime = System.currentTimeMillis();
+//        var startTime = System.currentTimeMillis();
         try {
             String jsonData = "{\"name\":\"Product\",\"price\":10.0}";
             String endpoint = "http://localhost:8080/products";
@@ -31,12 +39,14 @@ public class MyRunnable implements Runnable {
                 // Discard the response content
                 entity.getContent().close();
             }
-        } catch (IOException e) {
-            errorCount++;
+        } catch (SocketException e) {
+            errorCount.incrementAndGet();
             System.err.println("Request failed: " + e.getMessage());
         } catch (UnhandledHttpMethodException e) {
             System.err.println("Unhandled HTTP method: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        var endTime = System.currentTimeMillis();
+//        var endTime = System.currentTimeMillis();
     }
 }
