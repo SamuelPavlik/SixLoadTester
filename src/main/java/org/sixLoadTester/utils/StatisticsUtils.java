@@ -1,4 +1,4 @@
-package org.example;
+package org.sixLoadTester.utils;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
