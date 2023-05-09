@@ -1,24 +1,20 @@
-package org.example;
+package org.sixLoadTester.testers;
 
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.sixLoadTester.utils.HttpUtils;
+import org.sixLoadTester.exceptions.NoDataAvailableException;
+import org.sixLoadTester.exceptions.UnhandledHttpMethodException;
+import org.sixLoadTester.utils.RequestData;
 
 import java.io.IOException;
 import java.util.List;
 
 public abstract class EndpointTester {
-    protected final HttpMethod method;
-    protected final String endpoint;
-    protected String jsonData;
 
-    public EndpointTester(String endpoint, HttpMethod method) {
-        this.method = method;
-        this.endpoint = endpoint;
-        this.jsonData = "";
-    }
+    RequestData requestData;
 
-    public EndpointTester(String endpoint, HttpMethod method, String jsonData) {
-        this(endpoint, method);
-        this.jsonData = jsonData;
+    public EndpointTester(RequestData requestData) {
+        this.requestData = requestData;
     }
 
     public abstract void execute() throws InterruptedException;
@@ -29,7 +25,7 @@ public abstract class EndpointTester {
         var httpClient = HttpClientBuilder.create().build();
         var startTime = System.currentTimeMillis();
         try {
-            var request = HttpUtils.createHttpRequest(endpoint, method, jsonData);
+            var request = HttpUtils.createHttpRequest(requestData);
             var response = httpClient.execute(request);
             var entity = response.getEntity();
             if (entity != null) {

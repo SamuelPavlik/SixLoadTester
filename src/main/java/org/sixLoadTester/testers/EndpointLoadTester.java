@@ -1,4 +1,8 @@
-package org.example;
+package org.sixLoadTester.testers;
+
+import org.sixLoadTester.exceptions.NoDataAvailableException;
+import org.sixLoadTester.utils.RequestData;
+import org.sixLoadTester.utils.StatisticsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +19,8 @@ public class EndpointLoadTester extends EndpointTester {
 
     private List<Long> responseTimes;
 
-    public EndpointLoadTester(String endpoint, HttpMethod method) {
-        super(endpoint, method);
-    }
-
-    public EndpointLoadTester(String endpoint, HttpMethod method, String jsonData) {
-        this(endpoint, method);
-        this.jsonData = jsonData;
+    public EndpointLoadTester(RequestData requestData) {
+        super(requestData);
     }
 
     public void execute() throws InterruptedException {
