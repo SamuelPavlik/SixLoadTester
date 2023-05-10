@@ -1,6 +1,5 @@
 package org.sixLoadTester.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,9 +8,9 @@ public class ResponseData {
     public AtomicInteger errorCount;
     public List<Long> responseTimes;
 
-    public ResponseData() {
-        this.overallCount = new AtomicInteger(0);
-        this.errorCount = new AtomicInteger(0);
-        this.responseTimes = new ArrayList<>();
+    public ResponseData(AtomicInteger overallCount, AtomicInteger errorCount, List<Long> responseTimes) {
+        this.overallCount = overallCount;
+        this.errorCount = errorCount;
+        this.responseTimes = responseTimes;
     }
 }

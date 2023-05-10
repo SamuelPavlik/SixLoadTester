@@ -18,7 +18,7 @@ public class EndpointStressTester extends EndpointTester {
     private static final int NUM_UPDATE_FREQUENCY_IN_MS = 100;
 
     private int increaseInRequestsPerSecond;
-    private ResponseData responseData;
+    private ResponseData responseData = null;
 
     public EndpointStressTester(RequestData requestData) {
         super(requestData);
@@ -44,10 +44,7 @@ public class EndpointStressTester extends EndpointTester {
             System.out.print("\rNumber of requests per second: " + overallCount.get());
         }
 
-        responseData = new ResponseData();
-        responseData.errorCount = errorCount;
-        responseData.overallCount = overallCount;
-        responseData.responseTimes = responseTimes;
+        responseData = new ResponseData(errorCount, overallCount, responseTimes);
 
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
@@ -55,6 +52,9 @@ public class EndpointStressTester extends EndpointTester {
 
     @Override
     public void produceStatistics() throws NoDataAvailableException {
+        if (responseData == null)
+            throw new NoDataAvailableException();
+
         System.out.println("\nOverall count: " + responseData.overallCount);
 
         StatisticsUtils.createChart(responseData.responseTimes);
