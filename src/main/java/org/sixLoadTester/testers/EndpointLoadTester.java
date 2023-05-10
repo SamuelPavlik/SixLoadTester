@@ -31,6 +31,7 @@ public class EndpointLoadTester extends EndpointTester {
         List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
         List<Long> localResponseTimes = new ArrayList<>();
 
+        System.out.println("Load test initiated");
         System.out.println("Ramp up initiated");
 
         for (int i = 0; i < maxRequestsPerSecond; i++) {

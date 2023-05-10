@@ -53,8 +53,7 @@ public class StressTesterRunner implements Runnable {
             throw new RuntimeException(e);
         }
         var endTime = System.currentTimeMillis();
-        synchronized (this)
-        {
+        synchronized (this) {
             responseTimes.add(endTime - startTime);
         }
     }
