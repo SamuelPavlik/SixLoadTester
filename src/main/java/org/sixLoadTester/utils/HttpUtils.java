@@ -5,6 +5,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.sixLoadTester.data.HttpMethod;
+import org.sixLoadTester.data.RequestData;
 import org.sixLoadTester.exceptions.UnhandledHttpMethodException;
 
 public class HttpUtils {

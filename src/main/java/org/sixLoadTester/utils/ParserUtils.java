@@ -1,5 +1,7 @@
 package org.sixLoadTester.utils;
 
+import org.sixLoadTester.data.HttpMethod;
+import org.sixLoadTester.data.RequestData;
 import org.sixLoadTester.exceptions.InvalidNumberOfArgsException;
 import org.sixLoadTester.exceptions.InvalidTestNameException;
 import org.sixLoadTester.testers.EndpointLoadTester;
