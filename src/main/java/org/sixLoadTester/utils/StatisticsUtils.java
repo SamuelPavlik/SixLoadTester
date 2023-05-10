@@ -7,6 +7,7 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.sixLoadTester.data.ResponseData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,13 +20,13 @@ public class StatisticsUtils {
         for (int i = 0; i < responseTimes.size(); i++) {
             dataset.addValue(responseTimes.get(i), "Response Time", Integer.valueOf(i));
         }
+
         JFreeChart chart = ChartFactory.createLineChart("POST /products Response Times", "Request",
                 "Response Time (ms)", dataset, PlotOrientation.VERTICAL, false, true, false);
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
         CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setTickLabelsVisible(false);
         domainAxis.setTickMarksVisible(false);
-//        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new Dimension(800, 600));
 
@@ -37,7 +38,8 @@ public class StatisticsUtils {
         frame.setVisible(true);
     }
 
-    public static void calculateStatistics(List<Long> responseTimes, int totalDurationInSeconds) {
+    public static void calculateStatistics(ResponseData responseData, int totalDurationInSeconds) {
+        List<Long> responseTimes = responseData.responseTimes;
         float avgResponseTime = responseTimes.stream().mapToLong(l -> l).sum() / ((float) responseTimes.size());
         float throughput = responseTimes.size() / ((float) totalDurationInSeconds);
         long minTime = responseTimes.stream().mapToLong(l -> l).min().orElseThrow(NoSuchElementException::new);
@@ -50,5 +52,7 @@ public class StatisticsUtils {
         System.out.println("Throughput: " + throughput + " requests per second");
         System.out.println("Minimum response time: " + minTime + "ms");
         System.out.println("Maximum response time: " + maxTime + "ms");
+        System.out.println("Maximum requests per second: " + responseData.maxRequestsPerSecond);
+        System.out.println("Error count: " + responseData.errorCount);
     }
 }

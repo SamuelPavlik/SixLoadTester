@@ -1,7 +1,7 @@
 package org.sixLoadTester.testers;
 
-import org.sixLoadTester.exceptions.NoDataAvailableException;
-import org.sixLoadTester.utils.RequestData;
+import org.sixLoadTester.data.ResponseData;
+import org.sixLoadTester.data.RequestData;
 import org.sixLoadTester.utils.StatisticsUtils;
 
 import java.util.ArrayList;
@@ -12,12 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 public class EndpointLoadTester extends EndpointTester {
 
-    private int maxRequestsPerSecond = 400;
-    private int rampUpTimeInMiliseconds = 5000;
-    private int rampDownTimeInMiliseconds = 5000;
-    private int durationInMiliseconds = 10000;
+    private static final int DEFAULT_MAX_REQUESTS_PER_SECOND = 400;
+    private static final int DEFAULT_RAMP_UP_TIME_IN_MS = 5000;
+    private static final int DEFAULT_RAMP_DOWN_TIME_IN_MS = 5000;
+    private static final int DEFAULT_DURATION_IN_MS = 10000;
 
-    private List<Long> responseTimes;
+    private int maxRequestsPerSecond = DEFAULT_MAX_REQUESTS_PER_SECOND;
+    private int rampUpTimeInMiliseconds = DEFAULT_RAMP_UP_TIME_IN_MS;
+    private int rampDownTimeInMiliseconds = DEFAULT_RAMP_DOWN_TIME_IN_MS;
+    private int durationInMiliseconds = DEFAULT_DURATION_IN_MS;
 
     public EndpointLoadTester(RequestData requestData) {
         super(requestData);
@@ -29,15 +32,15 @@ public class EndpointLoadTester extends EndpointTester {
 
         var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
         List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
-        List<Long> localResponseTimes = new ArrayList<>();
+        ResponseData responseData = new ResponseData();
 
         System.out.println("Load test initiated");
         System.out.println("Ramp up initiated");
 
         for (int i = 0; i < maxRequestsPerSecond; i++) {
             long initialDelay = (long) (i * (((float) rampUpTimeInMiliseconds) / maxRequestsPerSecond));
-            scheduledFutures.add(executorService.scheduleAtFixedRate(() -> runThread(localResponseTimes),
-                    initialDelay, 1000, TimeUnit.MILLISECONDS));
+            TesterRunner runner = new TesterRunner(requestData, responseData);
+            scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelay, 1000, TimeUnit.MILLISECONDS));
         }
 
         Thread.sleep(rampUpTimeInMiliseconds);
@@ -56,17 +59,13 @@ public class EndpointLoadTester extends EndpointTester {
 
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
-        responseTimes = localResponseTimes;
+
+        produceStatistics(responseData, durationInMiliseconds + rampDownTimeInMiliseconds + rampUpTimeInMiliseconds);
     }
 
-    @Override
-    public void produceStatistics() throws NoDataAvailableException {
-        if (responseTimes.isEmpty())
-            throw new NoDataAvailableException();
-
-        StatisticsUtils.createChart(responseTimes);
-        StatisticsUtils.calculateStatistics(responseTimes, durationInMiliseconds +
-                rampDownTimeInMiliseconds + rampUpTimeInMiliseconds);
+    private void produceStatistics(ResponseData responseData, int totalDurationInMs) {
+        StatisticsUtils.calculateStatistics(responseData, totalDurationInMs);
+        StatisticsUtils.createChart(responseData.responseTimes);
     }
 
     public void setMaxRequestsPerSecond(int maxRequestsPerSecond) {
