@@ -1,4 +1,4 @@
-package org.sixLoadTester.utils;
+package org.sixLoadTester.data;
 
 public enum HttpMethod {
     GET,

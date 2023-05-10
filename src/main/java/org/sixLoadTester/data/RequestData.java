@@ -1,4 +1,4 @@
-package org.sixLoadTester.utils;
+package org.sixLoadTester.data;
 
 public class RequestData {
     public HttpMethod method;
