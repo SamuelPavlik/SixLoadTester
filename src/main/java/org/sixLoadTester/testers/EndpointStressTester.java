@@ -5,6 +5,7 @@ import org.sixLoadTester.data.ResponseData;
 import org.sixLoadTester.utils.StatisticsUtils;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class EndpointStressTester extends EndpointTester {
@@ -21,22 +22,13 @@ public class EndpointStressTester extends EndpointTester {
 
     @Override
     public void execute() throws InterruptedException {
-        var executorService = Executors.newScheduledThreadPool(MAX_THREADS);
         System.setErr(null);
 
-        ResponseData responseData = new ResponseData();
-        float delayBetweenRequestsInMs = 1000.f / increaseInRequestsPerSecond;
+        var executorService = Executors.newScheduledThreadPool(MAX_THREADS);
+        var responseData = new ResponseData();
+        initiateRampUp(executorService, responseData);
 
-        for (int i = 0; i < MAX_THREADS; i++) {
-            long initialDelay = (long) (i * delayBetweenRequestsInMs);
-            TesterRunner runner = new TesterRunner(requestData, responseData);
-            executorService.scheduleAtFixedRate(runner, initialDelay, 1000, TimeUnit.MILLISECONDS);
-        }
-
-        while (responseData.errorCount.get() < MAX_ERRORS) {
-            Thread.sleep(NUM_UPDATE_FREQUENCY_IN_MS);
-            System.out.print("\rNumber of requests per second: " + responseData.maxRequestsPerSecond.get());
-        }
+        waitForReachingStressPoint(responseData);
 
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
@@ -44,9 +36,26 @@ public class EndpointStressTester extends EndpointTester {
         produceStatistics(responseData);
     }
 
+    private static void waitForReachingStressPoint(ResponseData responseData) throws InterruptedException {
+        while (responseData.errorCount.get() < MAX_ERRORS) {
+            Thread.sleep(NUM_UPDATE_FREQUENCY_IN_MS);
+            System.out.print("\rNumber of requests per second: " + responseData.maxRequestsPerSecond.get());
+        }
+    }
+
+    private void initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
+        long delayBetweenRequestsInNs = TimeUnit.SECONDS.toNanos(1) / increaseInRequestsPerSecond;
+        long oneSecInNs = TimeUnit.SECONDS.toNanos(1);
+
+        for (int i = 0; i < MAX_THREADS; i++) {
+            long initialDelayInNs = i * delayBetweenRequestsInNs;
+            var runner = new TesterRunner(requestData, responseData);
+            executorService.scheduleAtFixedRate(runner, initialDelayInNs, oneSecInNs, TimeUnit.NANOSECONDS);
+        }
+    }
+
     protected void produceStatistics(ResponseData responseData) {
-        //TODO remove totalDuration param
-        StatisticsUtils.calculateStatistics(responseData, 0);
+        StatisticsUtils.calculateStatistics(responseData);
         StatisticsUtils.createChart(responseData.responseTimes);
     }
 
