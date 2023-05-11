@@ -8,7 +8,7 @@ import org.sixLoadTester.testers.EndpointLoadTester;
 import org.sixLoadTester.testers.EndpointStressTester;
 import org.sixLoadTester.testers.EndpointTester;
 
-public class ParserUtils {
+public class EndpointTesterParserUtils {
 
     private static final int STRESS_TESTER_MIN_NUM_OF_ARGS = 5;
     private static final int LOAD_TESTER_MIN_NUM_OF_ARGS = 8;
