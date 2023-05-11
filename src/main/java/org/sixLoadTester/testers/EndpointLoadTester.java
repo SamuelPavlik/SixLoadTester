@@ -1,7 +1,7 @@
 package org.sixLoadTester.testers;
 
-import org.sixLoadTester.data.ResponseData;
-import org.sixLoadTester.data.RequestData;
+import org.sixLoadTester.data.Request;
+import org.sixLoadTester.data.ResponseStatistics;
 import org.sixLoadTester.exceptions.NegativeNumberArgumentException;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ public class EndpointLoadTester extends EndpointTester {
     private int rampDownTimeInMs = DEFAULT_RAMP_DOWN_TIME_IN_MS;
     private int durationInMs = DEFAULT_DURATION_IN_MS;
 
-    public EndpointLoadTester(RequestData requestData) {
-        super(requestData);
+    public EndpointLoadTester(Request request) {
+        super(request);
     }
 
     public void execute() throws InterruptedException {
@@ -38,8 +38,8 @@ public class EndpointLoadTester extends EndpointTester {
         System.out.println("Ramp up initiated");
 
         var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
-        var responseData = new ResponseData();
-        List<ScheduledFuture<?>> scheduledFutures = initiateRampUp(executorService, responseData);
+        var responseData = new ResponseStatistics();
+        List<ScheduledFuture<?>> scheduledFutures = initiateSchedulersForRampUp(executorService, responseData);
 
         Thread.sleep(rampUpTimeInMs);
         System.out.println("Ramp up finished");
@@ -53,16 +53,16 @@ public class EndpointLoadTester extends EndpointTester {
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(responseData);
+        produceStatistics(request, responseData);
     }
 
-    private List<ScheduledFuture<?>> initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
+    private List<ScheduledFuture<?>> initiateSchedulersForRampUp(ScheduledExecutorService executorService, ResponseStatistics responseStatistics) {
         List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
         long oneSecInNs = TimeUnit.SECONDS.toNanos(1);
 
         for (int i = 0; i < maxRequestsPerSecond; i++) {
             long initialDelayInNs = i * (TimeUnit.MILLISECONDS.toNanos(rampUpTimeInMs) / maxRequestsPerSecond);
-            TesterRunner runner = new TesterRunner(requestData, responseData);
+            TesterRunner runner = new TesterRunner(request, responseStatistics);
             scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelayInNs, oneSecInNs, TimeUnit.NANOSECONDS));
         }
 

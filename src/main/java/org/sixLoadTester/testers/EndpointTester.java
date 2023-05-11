@@ -1,20 +1,20 @@
 package org.sixLoadTester.testers;
 
-import org.sixLoadTester.data.RequestData;
-import org.sixLoadTester.data.ResponseData;
+import org.sixLoadTester.data.Request;
+import org.sixLoadTester.data.ResponseStatistics;
 import org.sixLoadTester.utils.StatisticsUtils;
 
 public abstract class EndpointTester {
 
-    RequestData requestData;
+    Request request;
 
-    public EndpointTester(RequestData requestData) {
-        this.requestData = requestData;
+    public EndpointTester(Request request) {
+        this.request = request;
     }
 
-    protected static void produceStatistics(ResponseData responseData) {
-        StatisticsUtils.calculateStatistics(responseData);
-        StatisticsUtils.createChart(responseData.responseTimes);
+    protected static void produceStatistics(Request request, ResponseStatistics responseStatistics) {
+        StatisticsUtils.calculateStatistics(responseStatistics);
+        StatisticsUtils.createChart(request, responseStatistics.responseTimes);
     }
 
     public abstract void execute() throws InterruptedException;

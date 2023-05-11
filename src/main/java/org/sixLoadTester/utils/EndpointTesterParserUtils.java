@@ -1,7 +1,7 @@
 package org.sixLoadTester.utils;
 
 import org.sixLoadTester.data.HttpMethod;
-import org.sixLoadTester.data.RequestData;
+import org.sixLoadTester.data.Request;
 import org.sixLoadTester.exceptions.InvalidNumberOfArgsException;
 import org.sixLoadTester.exceptions.InvalidTestNameException;
 import org.sixLoadTester.testers.EndpointLoadTester;
@@ -30,36 +30,36 @@ public class EndpointTesterParserUtils {
             throw new InvalidNumberOfArgsException();
         }
 
-        RequestData requestData = new RequestData(
+        Request request = new Request(
                 HttpMethod.valueOf(args[HTTP_METHOD_INDEX].toUpperCase()),
                 args[ENDPOINT_INDEX],
                 args[REQUEST_BODY_INDEX]);
 
         if (args[TESTER_TYPE_INDEX].equalsIgnoreCase(LOAD_TEST_TYPE)) {
-            return getLoadTester(args, requestData);
+            return getLoadTester(args, request);
         } else if (args[TESTER_TYPE_INDEX].equalsIgnoreCase(STRESS_TEST_TYPE)) {
-            return getStressTester(args, requestData);
+            return getStressTester(args, request);
         } else {
             throw new InvalidTestNameException();
         }
     }
 
-    private static EndpointStressTester getStressTester(String[] args, RequestData requestData) {
+    private static EndpointStressTester getStressTester(String[] args, Request request) {
         if (args.length < STRESS_TESTER_MIN_NUM_OF_ARGS) {
             throw new InvalidNumberOfArgsException();
         }
 
-        EndpointStressTester stressTester = new EndpointStressTester(requestData);
+        EndpointStressTester stressTester = new EndpointStressTester(request);
         stressTester.setIncreaseInRequestsPerSecond(Integer.parseInt(args[INCREASE_IN_REQUESTS_INDEX]));
         return stressTester;
     }
 
-    private static EndpointLoadTester getLoadTester(String[] args, RequestData requestData) {
+    private static EndpointLoadTester getLoadTester(String[] args, Request request) {
         if (args.length < LOAD_TESTER_MIN_NUM_OF_ARGS) {
             throw new InvalidNumberOfArgsException();
         }
 
-        EndpointLoadTester loadTester = new EndpointLoadTester(requestData);
+        EndpointLoadTester loadTester = new EndpointLoadTester(request);
         loadTester.setRampUpTimeInMs(Integer.parseInt(args[RAMP_UP_INDEX]));
         loadTester.setDurationInMs(Integer.parseInt(args[DURATION_INDEX]));
         loadTester.setRampDownTimeInMs(Integer.parseInt(args[RAMP_DOWN_INDEX]));

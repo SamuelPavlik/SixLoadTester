@@ -6,15 +6,15 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.sixLoadTester.data.HttpMethod;
-import org.sixLoadTester.data.RequestData;
+import org.sixLoadTester.data.Request;
 import org.sixLoadTester.exceptions.UnhandledHttpMethodException;
 
 public class HttpUtils {
-    public static HttpRequestBase createHttpRequest(RequestData requestData) throws UnhandledHttpMethodException {
+    public static HttpRequestBase createHttpRequest(Request requestData) throws UnhandledHttpMethodException {
         if (requestData.method == HttpMethod.POST) {
             var request = new HttpPost(requestData.endpoint);
             request.setHeader("Content-Type", "application/json");
-            var requestEntity = new StringEntity(requestData.jsonData, ContentType.APPLICATION_JSON);
+            var requestEntity = new StringEntity(requestData.body, ContentType.APPLICATION_JSON);
             request.setEntity(requestEntity);
 
             return request;

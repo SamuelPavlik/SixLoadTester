@@ -1,7 +1,7 @@
 package org.sixLoadTester.testers;
 
-import org.sixLoadTester.data.RequestData;
-import org.sixLoadTester.data.ResponseData;
+import org.sixLoadTester.data.Request;
+import org.sixLoadTester.data.ResponseStatistics;
 import org.sixLoadTester.exceptions.NegativeNumberArgumentException;
 
 import java.util.concurrent.Executors;
@@ -16,8 +16,8 @@ public class EndpointStressTester extends EndpointTester {
 
     private int increaseInRequestsPerSecond;
 
-    public EndpointStressTester(RequestData requestData) {
-        super(requestData);
+    public EndpointStressTester(Request request) {
+        super(request);
     }
 
     @Override
@@ -32,31 +32,31 @@ public class EndpointStressTester extends EndpointTester {
         System.setErr(null);
 
         var executorService = Executors.newScheduledThreadPool(MAX_THREADS);
-        var responseData = new ResponseData();
-        initiateRampUp(executorService, responseData);
+        var responseData = new ResponseStatistics();
+        initiateSchedulersForRampUp(executorService, responseData);
 
         waitForReachingStressPoint(responseData);
 
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(responseData);
+        produceStatistics(request, responseData);
     }
 
-    private static void waitForReachingStressPoint(ResponseData responseData) throws InterruptedException {
-        while (responseData.errorCount.get() < MAX_ERRORS) {
+    private static void waitForReachingStressPoint(ResponseStatistics responseStatistics) throws InterruptedException {
+        while (responseStatistics.errorCount.get() < MAX_ERRORS) {
             Thread.sleep(NUM_UPDATE_FREQUENCY_IN_MS);
-            System.out.print("\rNumber of requests per second: " + responseData.maxRequestsPerSecond.get());
+            System.out.print("\rNumber of requests per second: " + responseStatistics.maxRequestsPerSecond.get());
         }
     }
 
-    private void initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
+    private void initiateSchedulersForRampUp(ScheduledExecutorService executorService, ResponseStatistics responseStatistics) {
         long delayBetweenRequestsInNs = TimeUnit.SECONDS.toNanos(1) / increaseInRequestsPerSecond;
         long oneSecInNs = TimeUnit.SECONDS.toNanos(1);
 
         for (int i = 0; i < MAX_THREADS; i++) {
             long initialDelayInNs = i * delayBetweenRequestsInNs;
-            var runner = new TesterRunner(requestData, responseData);
+            var runner = new TesterRunner(request, responseStatistics);
             executorService.scheduleAtFixedRate(runner, initialDelayInNs, oneSecInNs, TimeUnit.NANOSECONDS);
         }
     }
