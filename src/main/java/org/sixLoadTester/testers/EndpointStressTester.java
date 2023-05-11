@@ -2,7 +2,7 @@ package org.sixLoadTester.testers;
 
 import org.sixLoadTester.data.RequestData;
 import org.sixLoadTester.data.ResponseData;
-import org.sixLoadTester.utils.StatisticsUtils;
+import org.sixLoadTester.exceptions.NegativeNumberArgumentException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,11 +59,6 @@ public class EndpointStressTester extends EndpointTester {
             var runner = new TesterRunner(requestData, responseData);
             executorService.scheduleAtFixedRate(runner, initialDelayInNs, oneSecInNs, TimeUnit.NANOSECONDS);
         }
-    }
-
-    protected void produceStatistics(ResponseData responseData) {
-        StatisticsUtils.calculateStatistics(responseData);
-        StatisticsUtils.createChart(responseData.responseTimes);
     }
 
     public void setIncreaseInRequestsPerSecond(int increaseInRequestsPerSecond) {

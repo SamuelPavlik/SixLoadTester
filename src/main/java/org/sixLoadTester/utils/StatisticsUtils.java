@@ -38,13 +38,6 @@ public class StatisticsUtils {
         frame.setVisible(true);
     }
 
-    public static void calculateStatistics(ResponseData responseData, int totalDurationInSeconds) {
-        calculateStatistics(responseData);
-
-        float throughput = responseData.responseTimes.size() / ((float) totalDurationInSeconds);
-        System.out.println("Throughput: " + throughput + " requests per second");
-    }
-
     public static void calculateStatistics(ResponseData responseData)
     {
         List<Long> responseTimes = responseData.responseTimes;

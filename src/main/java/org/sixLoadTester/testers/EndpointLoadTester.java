@@ -2,7 +2,7 @@ package org.sixLoadTester.testers;
 
 import org.sixLoadTester.data.ResponseData;
 import org.sixLoadTester.data.RequestData;
-import org.sixLoadTester.utils.StatisticsUtils;
+import org.sixLoadTester.exceptions.NegativeNumberArgumentException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +48,12 @@ public class EndpointLoadTester extends EndpointTester {
         System.out.println("Ramp down initiated");
 
         rampDownRequests(scheduledFutures);
-
         System.out.println("Ramp down finished");
 
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(responseData, durationInMs + rampDownTimeInMs + rampUpTimeInMs);
+        produceStatistics(responseData);
     }
 
     private List<ScheduledFuture<?>> initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
@@ -78,11 +77,6 @@ public class EndpointLoadTester extends EndpointTester {
             scheduledFutures.get(i).cancel(false);
             Thread.sleep(pauseBetweenCancelsInMs, leftOverInNs);
         }
-    }
-
-    private void produceStatistics(ResponseData responseData, int totalDurationInMs) {
-        StatisticsUtils.calculateStatistics(responseData, totalDurationInMs);
-        StatisticsUtils.createChart(responseData.responseTimes);
     }
 
     public void setMaxRequestsPerSecond(int maxRequestsPerSecond) {

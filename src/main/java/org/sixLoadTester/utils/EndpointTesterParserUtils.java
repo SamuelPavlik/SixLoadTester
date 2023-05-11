@@ -30,7 +30,10 @@ public class EndpointTesterParserUtils {
             throw new InvalidNumberOfArgsException();
         }
 
-        RequestData requestData = new RequestData(HttpMethod.valueOf(args[HTTP_METHOD_INDEX].toUpperCase()), args[ENDPOINT_INDEX], args[REQUEST_BODY_INDEX]);
+        RequestData requestData = new RequestData(
+                HttpMethod.valueOf(args[HTTP_METHOD_INDEX].toUpperCase()),
+                args[ENDPOINT_INDEX],
+                args[REQUEST_BODY_INDEX]);
 
         if (args[TESTER_TYPE_INDEX].equalsIgnoreCase(LOAD_TEST_TYPE)) {
             return getLoadTester(args, requestData);
