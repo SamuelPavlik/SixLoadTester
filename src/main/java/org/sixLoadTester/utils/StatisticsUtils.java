@@ -39,9 +39,16 @@ public class StatisticsUtils {
     }
 
     public static void calculateStatistics(ResponseData responseData, int totalDurationInSeconds) {
+        calculateStatistics(responseData);
+
+        float throughput = responseData.responseTimes.size() / ((float) totalDurationInSeconds);
+        System.out.println("Throughput: " + throughput + " requests per second");
+    }
+
+    public static void calculateStatistics(ResponseData responseData)
+    {
         List<Long> responseTimes = responseData.responseTimes;
         float avgResponseTime = responseTimes.stream().mapToLong(l -> l).sum() / ((float) responseTimes.size());
-        float throughput = responseTimes.size() / ((float) totalDurationInSeconds);
         long minTime = responseTimes.stream().mapToLong(l -> l).min().orElseThrow(NoSuchElementException::new);
         long maxTime = responseTimes.stream().mapToLong(l -> l).max().orElseThrow(NoSuchElementException::new);
 
@@ -49,7 +56,6 @@ public class StatisticsUtils {
         System.out.println("Statistics");
         System.out.println("-------------------------------------------------------");
         System.out.println("Average response time: " + avgResponseTime + "ms");
-        System.out.println("Throughput: " + throughput + " requests per second");
         System.out.println("Minimum response time: " + minTime + "ms");
         System.out.println("Maximum response time: " + maxTime + "ms");
         System.out.println("Maximum requests per second: " + responseData.maxRequestsPerSecond);
