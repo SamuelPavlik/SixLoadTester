@@ -9,17 +9,32 @@ import org.sixLoadTester.testers.EndpointStressTester;
 import org.sixLoadTester.testers.EndpointTester;
 
 public class ParserUtils {
+
+    private static final int STRESS_TESTER_MIN_NUM_OF_ARGS = 5;
+    private static final int LOAD_TESTER_MIN_NUM_OF_ARGS = 8;
+    private static final int TESTER_TYPE_INDEX = 0;
+    private static final int HTTP_METHOD_INDEX = 1;
+    private static final int ENDPOINT_INDEX = 2;
+    private static final int REQUEST_BODY_INDEX = 3;
+    private static final int RAMP_UP_INDEX = 4;
+    private static final int INCREASE_IN_REQUESTS_INDEX = 4;
+    private static final int DURATION_INDEX = 5;
+    private static final int RAMP_DOWN_INDEX = 6;
+    private static final int MAX_REQUESTS_PER_S_INDEX = 7;
+    private static final String LOAD_TEST_TYPE = "load";
+    private static final String STRESS_TEST_TYPE = "stress";
+
     public static EndpointTester parseArgs(String[] args) throws IllegalArgumentException {
-        int minNumOfArgs = 5;
+        int minNumOfArgs = Math.min(STRESS_TESTER_MIN_NUM_OF_ARGS, LOAD_TESTER_MIN_NUM_OF_ARGS);
         if (args.length < minNumOfArgs) {
             throw new InvalidNumberOfArgsException();
         }
 
-        RequestData requestData = new RequestData(HttpMethod.valueOf(args[1].toUpperCase()), args[2], args[3]);
+        RequestData requestData = new RequestData(HttpMethod.valueOf(args[HTTP_METHOD_INDEX].toUpperCase()), args[ENDPOINT_INDEX], args[REQUEST_BODY_INDEX]);
 
-        if (args[0].equalsIgnoreCase("load")) {
+        if (args[TESTER_TYPE_INDEX].equalsIgnoreCase(LOAD_TEST_TYPE)) {
             return getLoadTester(args, requestData);
-        } else if (args[0].equalsIgnoreCase("stress")) {
+        } else if (args[TESTER_TYPE_INDEX].equalsIgnoreCase(STRESS_TEST_TYPE)) {
             return getStressTester(args, requestData);
         } else {
             throw new InvalidTestNameException();
@@ -27,27 +42,25 @@ public class ParserUtils {
     }
 
     private static EndpointStressTester getStressTester(String[] args, RequestData requestData) {
-        int stressTesterMinNumOfArgs = 5;
-        if (args.length < stressTesterMinNumOfArgs) {
+        if (args.length < STRESS_TESTER_MIN_NUM_OF_ARGS) {
             throw new InvalidNumberOfArgsException();
         }
 
         EndpointStressTester stressTester = new EndpointStressTester(requestData);
-        stressTester.setIncreaseInRequestsPerSecond(Integer.parseInt(args[4]));
+        stressTester.setIncreaseInRequestsPerSecond(Integer.parseInt(args[INCREASE_IN_REQUESTS_INDEX]));
         return stressTester;
     }
 
     private static EndpointLoadTester getLoadTester(String[] args, RequestData requestData) {
-        int loadTesterMinNumOfArgs = 8;
-        if (args.length < loadTesterMinNumOfArgs) {
+        if (args.length < LOAD_TESTER_MIN_NUM_OF_ARGS) {
             throw new InvalidNumberOfArgsException();
         }
 
         EndpointLoadTester loadTester = new EndpointLoadTester(requestData);
-        loadTester.setRampUpTimeInMiliseconds(Integer.parseInt(args[4]));
-        loadTester.setDurationInMiliseconds(Integer.parseInt(args[5]));
-        loadTester.setRampDownTimeInMiliseconds(Integer.parseInt(args[6]));
-        loadTester.setMaxRequestsPerSecond(Integer.parseInt(args[7]));
+        loadTester.setRampUpTimeInMiliseconds(Integer.parseInt(args[RAMP_UP_INDEX]));
+        loadTester.setDurationInMiliseconds(Integer.parseInt(args[DURATION_INDEX]));
+        loadTester.setRampDownTimeInMiliseconds(Integer.parseInt(args[RAMP_DOWN_INDEX]));
+        loadTester.setMaxRequestsPerSecond(Integer.parseInt(args[MAX_REQUESTS_PER_S_INDEX]));
         return loadTester;
     }
 
