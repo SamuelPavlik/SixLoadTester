@@ -35,7 +35,7 @@ public class EndpointLoadTester extends EndpointTester {
         System.out.println("Ramp up initiated");
 
         var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
-        ResponseData responseData = new ResponseData();
+        var responseData = new ResponseData();
         List<ScheduledFuture<?>> scheduledFutures = initiateRampUp(executorService, responseData);
 
         Thread.sleep(rampUpTimeInMs);
