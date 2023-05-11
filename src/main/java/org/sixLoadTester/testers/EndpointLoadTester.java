@@ -7,6 +7,7 @@ import org.sixLoadTester.utils.StatisticsUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,18 +31,12 @@ public class EndpointLoadTester extends EndpointTester {
         if (maxRequestsPerSecond <= 0)
             return;
 
-        var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
-        List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
-        ResponseData responseData = new ResponseData();
-
         System.out.println("Load test initiated");
         System.out.println("Ramp up initiated");
 
-        for (int i = 0; i < maxRequestsPerSecond; i++) {
-            long initialDelay = (long) (i * (((float) rampUpTimeInMiliseconds) / maxRequestsPerSecond));
-            TesterRunner runner = new TesterRunner(requestData, responseData);
-            scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelay, 1000, TimeUnit.MILLISECONDS));
-        }
+        var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
+        ResponseData responseData = new ResponseData();
+        List<ScheduledFuture<?>> scheduledFutures = initiateRampUp(executorService, responseData);
 
         Thread.sleep(rampUpTimeInMiliseconds);
         System.out.println("Ramp up finished");
@@ -49,11 +44,7 @@ public class EndpointLoadTester extends EndpointTester {
         Thread.sleep(durationInMiliseconds);
         System.out.println("Ramp down initiated");
 
-        long pauseBetweenCancels = rampDownTimeInMiliseconds / maxRequestsPerSecond;
-        for (int i = 0; i < maxRequestsPerSecond; i++) {
-            scheduledFutures.get(i).cancel(false);
-            Thread.sleep(pauseBetweenCancels);
-        }
+        rampDownRequests(scheduledFutures);
 
         System.out.println("Ramp down finished");
 
@@ -61,6 +52,25 @@ public class EndpointLoadTester extends EndpointTester {
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
         produceStatistics(responseData, durationInMiliseconds + rampDownTimeInMiliseconds + rampUpTimeInMiliseconds);
+    }
+
+    private void rampDownRequests(List<ScheduledFuture<?>> scheduledFutures) throws InterruptedException {
+        long pauseBetweenCancels = rampDownTimeInMiliseconds / maxRequestsPerSecond;
+        for (int i = 0; i < maxRequestsPerSecond; i++) {
+            scheduledFutures.get(i).cancel(false);
+            Thread.sleep(pauseBetweenCancels);
+        }
+    }
+
+    private List<ScheduledFuture<?>> initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
+        List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
+        for (int i = 0; i < maxRequestsPerSecond; i++) {
+            long initialDelay = (long) (i * (((float) rampUpTimeInMiliseconds) / maxRequestsPerSecond));
+            TesterRunner runner = new TesterRunner(requestData, responseData);
+            scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelay, 1000, TimeUnit.MILLISECONDS));
+        }
+
+        return scheduledFutures;
     }
 
     private void produceStatistics(ResponseData responseData, int totalDurationInMs) {
