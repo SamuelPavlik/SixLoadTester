@@ -22,6 +22,13 @@ public class EndpointStressTester extends EndpointTester {
 
     @Override
     public void execute() throws InterruptedException {
+        System.out.println("Stress test initiated");
+
+        if (increaseInRequestsPerSecond <= 0)
+        {
+            throw new NegativeNumberArgumentException();
+        }
+
         System.setErr(null);
 
         var executorService = Executors.newScheduledThreadPool(MAX_THREADS);

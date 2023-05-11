@@ -28,10 +28,13 @@ public class EndpointLoadTester extends EndpointTester {
     }
 
     public void execute() throws InterruptedException {
-        if (maxRequestsPerSecond <= 0)
-            return;
-
         System.out.println("Load test initiated");
+
+        if (maxRequestsPerSecond < 0 || rampUpTimeInMs < 0 || rampDownTimeInMs < 0 || durationInMs < 0)
+        {
+            throw new NegativeNumberArgumentException();
+        }
+
         System.out.println("Ramp up initiated");
 
         var executorService = Executors.newScheduledThreadPool(maxRequestsPerSecond);
