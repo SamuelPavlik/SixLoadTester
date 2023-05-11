@@ -19,9 +19,9 @@ public class EndpointLoadTester extends EndpointTester {
     private static final int DEFAULT_DURATION_IN_MS = 10000;
 
     private int maxRequestsPerSecond = DEFAULT_MAX_REQUESTS_PER_SECOND;
-    private int rampUpTimeInMiliseconds = DEFAULT_RAMP_UP_TIME_IN_MS;
-    private int rampDownTimeInMiliseconds = DEFAULT_RAMP_DOWN_TIME_IN_MS;
-    private int durationInMiliseconds = DEFAULT_DURATION_IN_MS;
+    private int rampUpTimeInMs = DEFAULT_RAMP_UP_TIME_IN_MS;
+    private int rampDownTimeInMs = DEFAULT_RAMP_DOWN_TIME_IN_MS;
+    private int durationInMs = DEFAULT_DURATION_IN_MS;
 
     public EndpointLoadTester(RequestData requestData) {
         super(requestData);
@@ -38,10 +38,10 @@ public class EndpointLoadTester extends EndpointTester {
         ResponseData responseData = new ResponseData();
         List<ScheduledFuture<?>> scheduledFutures = initiateRampUp(executorService, responseData);
 
-        Thread.sleep(rampUpTimeInMiliseconds);
+        Thread.sleep(rampUpTimeInMs);
         System.out.println("Ramp up finished");
 
-        Thread.sleep(durationInMiliseconds);
+        Thread.sleep(durationInMs);
         System.out.println("Ramp down initiated");
 
         rampDownRequests(scheduledFutures);
@@ -51,26 +51,30 @@ public class EndpointLoadTester extends EndpointTester {
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(responseData, durationInMiliseconds + rampDownTimeInMiliseconds + rampUpTimeInMiliseconds);
-    }
-
-    private void rampDownRequests(List<ScheduledFuture<?>> scheduledFutures) throws InterruptedException {
-        long pauseBetweenCancels = rampDownTimeInMiliseconds / maxRequestsPerSecond;
-        for (int i = 0; i < maxRequestsPerSecond; i++) {
-            scheduledFutures.get(i).cancel(false);
-            Thread.sleep(pauseBetweenCancels);
-        }
+        produceStatistics(responseData, durationInMs + rampDownTimeInMs + rampUpTimeInMs);
     }
 
     private List<ScheduledFuture<?>> initiateRampUp(ScheduledExecutorService executorService, ResponseData responseData) {
         List<ScheduledFuture<?>> scheduledFutures = new ArrayList<>();
+        long oneSecInNs = TimeUnit.SECONDS.toNanos(1);
+
         for (int i = 0; i < maxRequestsPerSecond; i++) {
-            long initialDelay = (long) (i * (((float) rampUpTimeInMiliseconds) / maxRequestsPerSecond));
+            long initialDelayInNs = i * (TimeUnit.MILLISECONDS.toNanos(rampUpTimeInMs) / maxRequestsPerSecond);
             TesterRunner runner = new TesterRunner(requestData, responseData);
-            scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelay, 1000, TimeUnit.MILLISECONDS));
+            scheduledFutures.add(executorService.scheduleAtFixedRate(runner, initialDelayInNs, oneSecInNs, TimeUnit.NANOSECONDS));
         }
 
         return scheduledFutures;
+    }
+
+    private void rampDownRequests(List<ScheduledFuture<?>> scheduledFutures) throws InterruptedException {
+        long pauseBetweenCancelsInNs = TimeUnit.MILLISECONDS.toNanos(rampDownTimeInMs) / maxRequestsPerSecond;
+        long pauseBetweenCancelsInMs = TimeUnit.NANOSECONDS.toMillis(pauseBetweenCancelsInNs);
+        int leftOverInNs = (int) (pauseBetweenCancelsInNs % TimeUnit.MILLISECONDS.toNanos(1));
+        for (int i = 0; i < maxRequestsPerSecond; i++) {
+            scheduledFutures.get(i).cancel(false);
+            Thread.sleep(pauseBetweenCancelsInMs, leftOverInNs);
+        }
     }
 
     private void produceStatistics(ResponseData responseData, int totalDurationInMs) {
@@ -82,16 +86,16 @@ public class EndpointLoadTester extends EndpointTester {
         this.maxRequestsPerSecond = maxRequestsPerSecond;
     }
 
-    public void setRampUpTimeInMiliseconds(int rampUpTimeInMiliseconds) {
-        this.rampUpTimeInMiliseconds = rampUpTimeInMiliseconds;
+    public void setRampUpTimeInMs(int rampUpTimeInMs) {
+        this.rampUpTimeInMs = rampUpTimeInMs;
     }
 
-    public void setRampDownTimeInMiliseconds(int rampDownTimeInMiliseconds) {
-        this.rampDownTimeInMiliseconds = rampDownTimeInMiliseconds;
+    public void setRampDownTimeInMs(int rampDownTimeInMs) {
+        this.rampDownTimeInMs = rampDownTimeInMs;
     }
 
-    public void setDurationInMiliseconds(int durationInMiliseconds) {
-        this.durationInMiliseconds = durationInMiliseconds;
+    public void setDurationInMs(int durationInMs) {
+        this.durationInMs = durationInMs;
     }
 }
 

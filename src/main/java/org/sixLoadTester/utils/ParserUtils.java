@@ -57,9 +57,9 @@ public class ParserUtils {
         }
 
         EndpointLoadTester loadTester = new EndpointLoadTester(requestData);
-        loadTester.setRampUpTimeInMiliseconds(Integer.parseInt(args[RAMP_UP_INDEX]));
-        loadTester.setDurationInMiliseconds(Integer.parseInt(args[DURATION_INDEX]));
-        loadTester.setRampDownTimeInMiliseconds(Integer.parseInt(args[RAMP_DOWN_INDEX]));
+        loadTester.setRampUpTimeInMs(Integer.parseInt(args[RAMP_UP_INDEX]));
+        loadTester.setDurationInMs(Integer.parseInt(args[DURATION_INDEX]));
+        loadTester.setRampDownTimeInMs(Integer.parseInt(args[RAMP_DOWN_INDEX]));
         loadTester.setMaxRequestsPerSecond(Integer.parseInt(args[MAX_REQUESTS_PER_S_INDEX]));
         return loadTester;
     }
