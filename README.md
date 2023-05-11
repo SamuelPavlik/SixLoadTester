@@ -24,7 +24,7 @@ To perform stress tests following arguments need to be specified in this order:
 2. http method - get/post/put/delete
 3. endpoint
 4. request body
-8. increase in number of requests to per second
+8. increase in number of requests per second
 
 For example: ```java -jar target/SixLoadTester-SNAPSHOT.jar load get https://localhost:8080/products {} 50```
 
