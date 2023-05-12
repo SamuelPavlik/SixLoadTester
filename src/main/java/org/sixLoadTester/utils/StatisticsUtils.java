@@ -22,7 +22,7 @@ public class StatisticsUtils {
             dataset.addValue(responseTimes.get(i), "Response Time", Integer.valueOf(i));
         }
 
-        JFreeChart chart = ChartFactory.createLineChart(request.method.toString() + " " + request.endpoint + " Response Times", "Request",
+        JFreeChart chart = ChartFactory.createLineChart(request.method.toString() + " " + request.endpoint + " Response Times", "Requests Over Time",
                 "Response Time (ms)", dataset, PlotOrientation.VERTICAL, false, true, false);
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
         CategoryAxis domainAxis = plot.getDomainAxis();

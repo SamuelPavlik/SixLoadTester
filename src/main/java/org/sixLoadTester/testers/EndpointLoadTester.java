@@ -19,15 +19,16 @@ public class EndpointLoadTester extends EndpointTester {
     private static final int DEFAULT_DURATION_IN_MS = 10000;
 
     private int maxRequestsPerSecond = DEFAULT_MAX_REQUESTS_PER_SECOND;
-    private int rampUpTimeInMs = DEFAULT_RAMP_UP_TIME_IN_MS;
-    private int rampDownTimeInMs = DEFAULT_RAMP_DOWN_TIME_IN_MS;
-    private int durationInMs = DEFAULT_DURATION_IN_MS;
+    private long rampUpTimeInMs = DEFAULT_RAMP_UP_TIME_IN_MS;
+    private long rampDownTimeInMs = DEFAULT_RAMP_DOWN_TIME_IN_MS;
+    private long durationInMs = DEFAULT_DURATION_IN_MS;
 
     public EndpointLoadTester(Request request) {
         super(request);
     }
 
-    public void execute() throws InterruptedException {
+    @Override
+    public void executeInternal(boolean withChart) throws InterruptedException {
         System.out.println("Load test initiated");
 
         if (maxRequestsPerSecond < 0 || rampUpTimeInMs < 0 || rampDownTimeInMs < 0 || durationInMs < 0)
@@ -53,7 +54,7 @@ public class EndpointLoadTester extends EndpointTester {
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(request, responseData);
+        produceStatistics(request, responseData, withChart);
     }
 
     private List<ScheduledFuture<?>> initiateSchedulersForRampUp(ScheduledExecutorService executorService, ResponseStatistics responseStatistics) {
@@ -83,15 +84,15 @@ public class EndpointLoadTester extends EndpointTester {
         this.maxRequestsPerSecond = maxRequestsPerSecond;
     }
 
-    public void setRampUpTimeInMs(int rampUpTimeInMs) {
+    public void setRampUpTimeInMs(long rampUpTimeInMs) {
         this.rampUpTimeInMs = rampUpTimeInMs;
     }
 
-    public void setRampDownTimeInMs(int rampDownTimeInMs) {
+    public void setRampDownTimeInMs(long rampDownTimeInMs) {
         this.rampDownTimeInMs = rampDownTimeInMs;
     }
 
-    public void setDurationInMs(int durationInMs) {
+    public void setDurationInMs(long durationInMs) {
         this.durationInMs = durationInMs;
     }
 }

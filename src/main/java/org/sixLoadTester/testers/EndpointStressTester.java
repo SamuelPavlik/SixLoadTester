@@ -21,7 +21,7 @@ public class EndpointStressTester extends EndpointTester {
     }
 
     @Override
-    public void execute() throws InterruptedException {
+    public void executeInternal(boolean withChart) throws InterruptedException {
         System.out.println("Stress test initiated");
 
         if (increaseInRequestsPerSecond <= 0)
@@ -40,7 +40,7 @@ public class EndpointStressTester extends EndpointTester {
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-        produceStatistics(request, responseData);
+        produceStatistics(request, responseData, withChart);
     }
 
     private static void waitForReachingStressPoint(ResponseStatistics responseStatistics) throws InterruptedException {

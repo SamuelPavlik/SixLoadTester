@@ -7,6 +7,6 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException {
         EndpointTester tester = EndpointTesterParserUtils.parseArgs(args);
-        tester.execute();
+        tester.execute(true);
     }
 }

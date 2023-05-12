@@ -45,6 +45,7 @@ public class TesterRunner implements Runnable {
             System.err.println("Request to " + request.endpoint + " failed: " + e.getMessage());
         } catch (UnhandledHttpMethodException e) {
             System.err.println("Unhandled HTTP method " + request.method + " in " + request.endpoint + " : " + e.getMessage());
+            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,9 +1,6 @@
 package org.sixLoadTester.utils;
 
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.sixLoadTester.data.HttpMethod;
@@ -17,12 +14,14 @@ public class HttpUtils {
             var postRequest = new HttpPost(requestData.endpoint);
             postRequest.setEntity(new StringEntity(requestData.body, ContentType.APPLICATION_JSON));
             request = postRequest;
+        } else if (requestData.method == HttpMethod.PUT) {
+            var putRequest = new HttpPut(requestData.endpoint);
+            putRequest.setEntity(new StringEntity(requestData.body, ContentType.APPLICATION_JSON));
+            request = putRequest;
         } else if (requestData.method == HttpMethod.GET) {
             request = new HttpGet(requestData.endpoint);
-        } else if (requestData.method == HttpMethod.PUT) {
-            request = new HttpPut(requestData.endpoint);
         } else if (requestData.method == HttpMethod.DELETE) {
-            request = new HttpPut(requestData.endpoint);
+            request = new HttpDelete(requestData.endpoint);
         }
         else {
             throw new UnhandledHttpMethodException();

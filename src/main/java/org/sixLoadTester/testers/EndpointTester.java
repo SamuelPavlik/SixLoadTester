@@ -12,10 +12,34 @@ public abstract class EndpointTester {
         this.request = request;
     }
 
-    protected static void produceStatistics(Request request, ResponseStatistics responseStatistics) {
-        StatisticsUtils.calculateStatistics(responseStatistics);
-        StatisticsUtils.createChart(request, responseStatistics.responseTimes);
+    public void execute(boolean withChart) throws InterruptedException {
+        runTestRequest();
+        executeInternal(withChart);
     }
 
-    public abstract void execute() throws InterruptedException;
+    public void execute() throws InterruptedException {
+        execute(false);
+    }
+
+    protected abstract void executeInternal(boolean withChart) throws InterruptedException;
+
+    private void runTestRequest() {
+        ResponseStatistics responseStatistics = new ResponseStatistics();
+        TesterRunner runner = new TesterRunner(request, responseStatistics);
+        runner.run();
+
+        if (responseStatistics.errorCount.get() > 0)
+        {
+            throw new RuntimeException("Unable to establish connection with the endpoint "
+                    + request.method.name() + " " + request.endpoint);
+        }
+    }
+
+    protected static void produceStatistics(Request request, ResponseStatistics responseStatistics, boolean withChart) {
+        StatisticsUtils.calculateStatistics(responseStatistics);
+
+        if (withChart) {
+            StatisticsUtils.createChart(request, responseStatistics.responseTimes);
+        }
+    }
 }
