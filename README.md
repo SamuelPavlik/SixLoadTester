@@ -17,7 +17,7 @@ To perform load tests following arguments need to be specified in this order:
 7. ramp down time in ms
 8. number of requests to reach per second
 
-For example: ```java -jar target/SixLoadTester-SNAPSHOT.jar load get https://localhost:8080/products {} 2000 10000 2000 400```
+For example: ```java -jar target/SixLoadTester-1.0-SNAPSHOT.jar load get https://localhost:8080/products {} 2000 10000 2000 400```
 
 To perform stress tests following arguments need to be specified in this order:
 1. "stress"
@@ -26,7 +26,7 @@ To perform stress tests following arguments need to be specified in this order:
 4. request body
 8. increase in number of requests per second
 
-For example: ```java -jar target/SixLoadTester-SNAPSHOT.jar stress get https://localhost:8080/products {} 50```
+For example: ```java -jar target/SixLoadTester-1.0-SNAPSHOT.jar stress get https://localhost:8080/products {} 50```
 
 ## Design
 The tool recognizes 2 types of tests:
