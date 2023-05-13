@@ -1,5 +1,5 @@
 # SixLoadTester
-Command line tool for performance tests of REST endpoints.
+Command line tool for performance tests of REST endpoints that produces command line statistics of the performance test and a jfreechart line graph for response times over time.
 
 ## Build
 To build use ```mvn clean package```. The resulting jar file should be created in the ```target``` folder.
